@@ -1,9 +1,9 @@
 const wrtc = require("wrtc");
-const exchange = require("peer-exchange");
+const Exchange = require("peer-exchange");
 const net = require("net");
+const Messages = require("../models/messages");
 const messageType = require("../models/messageType");
-const messages = require("../models/messages");
-const p2p = new exchange("Blockchain", { wrtc: wrtc });
+const p2p = new Exchange("Blockchain Demo 2.0", { wrtc: wrtc });
 const {
     REQUEST_LATEST_BLOCK,
     RECEIVE_LATEST_BLOCK,
@@ -13,8 +13,8 @@ const {
     RECEIVE_TRANSACTIONS
 } = messageType;
 
-class PeerToPeer {
 
+class PeerToPeer {
     constructor(blockchain) {
         this.peers = [];
         this.blockchain = blockchain;
@@ -22,14 +22,14 @@ class PeerToPeer {
 
     startServer(port) {
         const server = net
-            .createServer( socket =>
-            p2p.accept(socket, (err, conn) => {
-                if (err) {
-                    throw err;
-                } else {
-                    this.initConnection.call(this, conn);
-                }
-            })
+            .createServer(socket =>
+                p2p.accept(socket, (err, conn) => {
+                    if (err) {
+                        throw err;
+                    } else {
+                        this.initConnection.call(this, conn);
+                    }
+                })
             )
             .listen(port);
     }
@@ -63,7 +63,7 @@ class PeerToPeer {
     }
 
     broadcastLatest() {
-        this.broadcast(messages.sendLatestBlock(this.blockchain.latestBlock));
+        this.broadcast(Messages.sendLatestBlock(this.blockchain.latestBlock));
     }
 
     broadcast(message) {
@@ -78,7 +78,7 @@ class PeerToPeer {
         this.peers.push(connection);
         this.initMessageHandler(connection);
         this.initErrorHandler(connection);
-        this.write(connection, messages.getLatestBlock());
+        this.write(connection, Messages.latestBlock);
     }
 
     initMessageHandler(connection) {
@@ -97,10 +97,10 @@ class PeerToPeer {
     handleMessage(peer, message) {
         switch (message.type) {
             case REQUEST_LATEST_BLOCK:
-                this.write(peer, messages.sendLatestBlock(this.blockchain.latestBlock));
+                this.write(peer, Messages.sendLatestBlock(this.blockchain.latestBlock));
                 break;
             case REQUEST_BLOCKCHAIN:
-                this.write(peer, messages.sendBlockchain(this.blockchain.get()));
+                this.write(peer, Messages.sendBlockchain(this.blockchain.get()));
                 break;
             case RECEIVE_LATEST_BLOCK:
                 this.handleReceivedLatestBlock(message, peer);
@@ -124,7 +124,7 @@ class PeerToPeer {
                 throw err;
             }
         } else if (receivedBlock.index > latestBlock.index) {
-            this.write(peer, messages.getBlockchain());
+            this.write(peer, Messages.getBlockchain());
         } else {
             // Do nothing.
         }

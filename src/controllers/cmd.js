@@ -56,7 +56,7 @@ function discoverCommand(vorpal) {
 
 function blockchainCommand(vorpal) {
     vorpal
-        .command('blockchain', 'See the current state of the blockchain.')
+        .command('blockchain', 'See the current state of the Blockchain.')
         .alias('bc')
         .action(function(args, callback) {
             this.log(blockchain)
@@ -78,7 +78,7 @@ function peersCommand(vorpal) {
 
 function mineCommand(vorpal) {
     vorpal
-        .command('mine <data>', 'Mine a new block. Eg: mine hello!')
+        .command('mine <data>', 'Mine a new block. Eg: mine FEUT-TUM')
         .alias('m')
         .action(function(args, callback) {
             if (args.data) {

@@ -2,7 +2,6 @@ const Block = require("../models/block.js");
 const crypto = require("crypto");
 
 class Blockchain {
-
     constructor() {
         this.blockchain = [Block.genesis];
         this.difficulty = 3;
@@ -12,29 +11,21 @@ class Blockchain {
         return this.blockchain;
     }
 
-    getLatestBlock() {
+    get latestBlock() {
         return this.blockchain[this.blockchain.length - 1];
     }
 
     // Count the number of zeros in the beginning of the hash value and check if there are at least "difficulty" zeros
     isValidHashDifficulty(hash) {
-        for(let i = 0; i < hash.length; i++) {
-            if (hash[i] !== 0) {
+        for (var i = 0; i < hash.length; i++) {
+            if (hash[i] !== "0") {
                 break;
             }
         }
-        return i >= this.difficulty
+        return i >= this.difficulty;
     }
 
-    calculateHash(index, previousHash, timestamp, data, nonce) {
-        return crypto
-            .createHash("sha256")
-            .update(index + previousHash + timestamp + data + nonce)
-            .digest("hex");
-
-    }
-
-    calculateBlockHash(block) {
+    calculateHashForBlock(block) {
         const { index, previousHash, timestamp, data, nonce } = block;
         return this.calculateHash(
             index,
@@ -43,6 +34,22 @@ class Blockchain {
             data,
             nonce
         );
+    }
+
+    calculateHash(index, previousHash, timestamp, data, nonce) {
+        return crypto
+            .createHash("sha256")
+            .update(index + previousHash + timestamp + data + nonce)
+            .digest("hex");
+    }
+
+    mine(data) {
+        const newBlock = this.generateNextBlock(data);
+        try {
+            this.addBlock(newBlock);
+        } catch(err) {
+            throw err;
+        }
     }
 
     generateNextBlock(data) {
@@ -58,7 +65,7 @@ class Blockchain {
             nonce
         );
 
-        while(!this.isValidHashDifficulty(nextHash)) {
+        while (!this.isValidHashDifficulty(nextHash)) {
             nonce = nonce + 1;
             timestamp = new Date().getTime();
             nextHash = this.calculateHash(
@@ -78,19 +85,20 @@ class Blockchain {
             nextHash,
             nonce
         );
+
+        return nextBlock;
     }
 
-    mine(data) {
-        const newBlock = this.generateNextBlock(data);
-        try {
-            this.addBlock(newBlock);
-        } catch (err) {
-            throw err;
+    addBlock(newBlock) {
+        if (this.isValidNextBlock(newBlock, this.latestBlock)) {
+            this.blockchain.push(newBlock);
+        } else {
+            throw "Error: Invalid Block!";
         }
     }
 
     isValidNextBlock(nextBlock, previousBlock) {
-        const nextBlockHash = this.calculateBlockHash(nextBlock);
+        const nextBlockHash = this.calculateHashForBlock(nextBlock);
 
         if (previousBlock.index + 1 !== nextBlock.index) {
             return false;
@@ -105,23 +113,15 @@ class Blockchain {
         }
     }
 
-    addBlock(newBlock) {
-        if(this.isValidNextBlock(newBlock, this.latestBlock)) {
-            this.blockchain.push(newBlock);
-        } else {
-            throw "Error: Invalid Block!"
-        }
-    }
-
     isValidChain(chain) {
         if (JSON.stringify(chain[0]) !== JSON.stringify(Block.genesis)) {
             return false;
         }
 
-        const temporaryChain = [chain[0]];
-        for(let i = 1; i < chain.length; i = i + 1) {
-            if (this.isValidNextBlock(chain[i], temporaryChain[i - 1])) {
-                temporaryChain.push(chain[i]);
+        const tempChain = [chain[0]];
+        for (let i = 1; i < chain.length; i = i + 1) {
+            if (this.isValidNextBlock(chain[i], tempChain[i - 1])) {
+                tempChain.push(chain[i]);
             } else {
                 return false;
             }
@@ -137,7 +137,7 @@ class Blockchain {
         if (this.isValidChain(newChain) && this.isChainLonger(newChain)) {
             this.blockchain = JSON.parse(JSON.stringify(newChain));
         } else {
-            throw  "Error: Invalid Chain!"
+            throw "Error: Invalid Chain!";
         }
     }
 }

@@ -7,7 +7,7 @@
   "dependencies": {
     "peer-exchange": "^2.2.0",
     "vorpal": "^1.12.0",
-    "wrtc": "0.0.63"
+    "wrtc": "n0.0.63"
   },
   "scripts": {
     "start": "node src/app.js",
