@@ -48,7 +48,7 @@ function discoverCommand(vorpal) {
             try {
                 p2p.discoverPeers();
             } catch(err) {
-                this.log(err);
+                console.log("Error: Not connected to any peers.")
             }
             callback();
         })
@@ -105,3 +105,8 @@ function openCommand(vorpal) {
             callback();
         })
 }
+
+process.on('uncaughtException', function (err) {
+    console.log("Unfortunately an error happened - " + err + ". Please try again!");
+    process.exit();
+});
