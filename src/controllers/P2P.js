@@ -1,9 +1,8 @@
 const wrtc = require("wrtc");
 const Exchange = require("peer-exchange");
+const p2p = new Exchange("Blockchain", { wrtc: wrtc });
 const net = require("net");
-const Messages = require("../models/messages");
 const messageType = require("../models/messageType");
-const p2p = new Exchange("Blockchain Demo 2.0", { wrtc: wrtc });
 const {
     REQUEST_LATEST_BLOCK,
     RECEIVE_LATEST_BLOCK,
@@ -12,7 +11,7 @@ const {
     REQUEST_TRANSACTIONS,
     RECEIVE_TRANSACTIONS
 } = messageType;
-
+const Messages = require("../models/messages.js");
 
 class PeerToPeer {
     constructor(blockchain) {
@@ -78,7 +77,7 @@ class PeerToPeer {
         this.peers.push(connection);
         this.initMessageHandler(connection);
         this.initErrorHandler(connection);
-        this.write(connection, Messages.latestBlock);
+        this.write(connection, Messages.getLatestBlock());
     }
 
     initMessageHandler(connection) {
