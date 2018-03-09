@@ -1,0 +1,18 @@
+{
+  "name": "node",
+  "version": "1.0.0",
+  "description": "Simple Blockchain Application",
+  "author": "Klaidi Gorishti <klaidi.gorishti@tum.de>",
+  "main": "src/app.js",
+  "dependencies": {
+
+  },
+  "scripts": {
+    "start": "node src/app.js",
+    "watch": "./node_modules/nodemon/bin/nodemon.js  -L app.js"
+  },
+  "repository": {
+    "type": "git"
+  },
+  "license": "MIT"
+}

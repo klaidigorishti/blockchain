@@ -1,2 +1,3 @@
-# blockchain
-Simple blockchain application.
+# Blockchain
+
+Simple blockchain application written in Node.js.
